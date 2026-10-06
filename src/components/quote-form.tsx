@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
+import Script from "next/script";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,9 +17,31 @@ import { submitQuoteRequest, type QuoteFormState } from "@/app/actions";
 import { CheckCircle2, Loader2 } from "lucide-react";
 
 const initialState: QuoteFormState = { status: "idle" };
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
 export function QuoteForm() {
   const [state, formAction, pending] = useActionState(submitQuoteRequest, initialState);
+  const [turnstileLoaded, setTurnstileLoaded] = useState(false);
+  const turnstileContainerRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<string | undefined>(undefined);
+
+  // Render the widget explicitly (not the auto-render class) so we can
+  // retain its widget ID and reset it after a failed/erroring attempt —
+  // a cf-turnstile-response token is single-use.
+  useEffect(() => {
+    if (!turnstileLoaded || !turnstileContainerRef.current || widgetIdRef.current) return;
+    if (!window.turnstile) return;
+    widgetIdRef.current = window.turnstile.render(turnstileContainerRef.current, {
+      sitekey: TURNSTILE_SITE_KEY,
+      action: "quote_request",
+    });
+  }, [turnstileLoaded]);
+
+  useEffect(() => {
+    if (state.status === "error" && widgetIdRef.current && window.turnstile) {
+      window.turnstile.reset(widgetIdRef.current);
+    }
+  }, [state]);
 
   if (state.status === "success") {
     return (
@@ -31,6 +54,11 @@ export function QuoteForm() {
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
+      <Script
+        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+        strategy="afterInteractive"
+        onLoad={() => setTurnstileLoaded(true)}
+      />
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
           <Label htmlFor="firstName">First name *</Label>
@@ -67,6 +95,7 @@ export function QuoteForm() {
         <Label htmlFor="details">Please leave us any details we should know</Label>
         <Textarea id="details" name="details" rows={4} />
       </div>
+      <div ref={turnstileContainerRef} />
       {state.status === "error" && (
         <p className="text-sm font-medium text-destructive">{state.message}</p>
       )}
