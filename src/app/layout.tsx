@@ -3,6 +3,9 @@ import { Geist, Geist_Mono, Archivo } from "next/font/google";
 import { GoogleTagManager } from "@next/third-parties/google";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { CookieConsent } from "@/components/cookie-consent";
+import { VercelAnalytics } from "@/components/vercel-analytics";
+import { consentDefaultScript } from "@/lib/consent";
 import "./globals.css";
 
 const GTM_ID = "GTM-PRNRJXM8";
@@ -38,6 +41,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${archivo.variable} h-full antialiased`}
     >
+      <head>
+        {/* Consent Mode defaults must be set before GTM loads. */}
+        <script dangerouslySetInnerHTML={{ __html: consentDefaultScript }} />
+      </head>
       <GoogleTagManager gtmId={GTM_ID} />
       <body className="flex min-h-full flex-col">
         <noscript>
@@ -51,6 +58,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />
+        <CookieConsent />
+        <VercelAnalytics />
       </body>
     </html>
   );

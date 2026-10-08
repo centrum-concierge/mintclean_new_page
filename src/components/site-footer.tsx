@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { Logo } from "@/components/logo";
+import { CookieSettingsButton } from "@/components/cookie-settings-button";
 import { footerServiceLinks, site } from "@/lib/site";
 
 export function SiteFooter() {
@@ -54,8 +55,12 @@ export function SiteFooter() {
           </ul>
         </div>
       </div>
-      <div className="border-t border-white/10 px-4 py-6 text-center text-xs text-white/50 sm:px-6 lg:px-8">
-        &copy; {new Date().getFullYear()} Mint Clean. {site.legalName}
+      <div className="flex flex-col items-center gap-3 border-t border-white/10 px-4 py-6 text-xs text-white/50 sm:flex-row sm:justify-center sm:gap-6 sm:px-6 lg:px-8">
+        <span>&copy; {new Date().getFullYear()} Mint Clean. {site.legalName}</span>
+        <div className="flex gap-5">
+          <Link href="/privacy-policy" className="hover:text-primary">Privacy Policy</Link>
+          <CookieSettingsButton className="cursor-pointer hover:text-primary" />
+        </div>
       </div>
     </footer>
   );

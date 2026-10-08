@@ -4,6 +4,7 @@ export const site = {
   phone: "604-649-3804",
   phoneHref: "tel:+16046493804",
   email: "info@mintclean.ca",
+  privacyEmail: "privacy@mintclean.ca",
   address: {
     line1: "170-422 Richards Street",
     city: "Vancouver, BC",

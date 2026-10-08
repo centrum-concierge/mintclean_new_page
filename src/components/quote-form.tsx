@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import Script from "next/script";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -99,6 +100,13 @@ export function QuoteForm() {
       {state.status === "error" && (
         <p className="text-sm font-medium text-destructive">{state.message}</p>
       )}
+      <p className="text-sm text-muted-foreground">
+        We use the information you provide to respond to your request. See our{" "}
+        <Link href="/privacy-policy" className="font-medium text-primary underline-offset-4 hover:underline">
+          Privacy Policy
+        </Link>
+        .
+      </p>
       <Button type="submit" size="lg" disabled={pending} className="w-full sm:w-auto">
         {pending && <Loader2 className="size-4 animate-spin" />}
         Submit
