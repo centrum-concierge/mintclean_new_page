@@ -18,14 +18,25 @@ const TURNSTILE_ACTION = "quote_request";
 const expectedHostnames = new Set(
   (process.env.TURNSTILE_HOSTNAMES ?? "")
     .split(",")
-    .map((hostname) => hostname.trim())
+    .map((hostname) =>
+      hostname
+        .trim()
+        .toLowerCase()
+        .replace(/^https?:\/\//, "")
+        .replace(/\/.*$/, "")
+    )
     .filter(Boolean)
 );
 
 async function verifyTurnstile(formData: FormData): Promise<boolean> {
   const token = formData.get("cf-turnstile-response")?.toString() ?? "";
 
-  if (!token || token.length > 2048 || expectedHostnames.size === 0) {
+  if (!token || token.length > 2048) {
+    console.error("Turnstile token missing or oversized");
+    return false;
+  }
+  if (expectedHostnames.size === 0) {
+    console.error("TURNSTILE_HOSTNAMES is empty or not set in this deployment");
     return false;
   }
 
@@ -57,9 +68,11 @@ async function verifyTurnstile(formData: FormData): Promise<boolean> {
   if (
     !result.success ||
     result.action !== TURNSTILE_ACTION ||
-    !expectedHostnames.has(result.hostname)
+    !expectedHostnames.has(String(result.hostname ?? "").toLowerCase())
   ) {
-    console.error("Turnstile verification rejected:", result);
+    console.error("Turnstile verification rejected:", result, {
+      expectedHostnames: [...expectedHostnames],
+    });
     return false;
   }
 

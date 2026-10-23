@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import Script from "next/script";
 import Link from "next/link";
+import { sendGTMEvent } from "@next/third-parties/google";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +26,7 @@ export function QuoteForm() {
   const [turnstileLoaded, setTurnstileLoaded] = useState(false);
   const turnstileContainerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | undefined>(undefined);
+  const conversionSentRef = useRef(false);
 
   // Render the widget explicitly (not the auto-render class) so we can
   // retain its widget ID and reset it after a failed/erroring attempt —
@@ -43,6 +45,15 @@ export function QuoteForm() {
       window.turnstile.reset(widgetIdRef.current);
     }
   }, [state]);
+
+  // Tell GTM about the lead only once the server action reports success, so
+  // failed or rejected submissions are never counted as conversions.
+  useEffect(() => {
+    if (state.status === "success" && !conversionSentRef.current) {
+      conversionSentRef.current = true;
+      sendGTMEvent({ event: "formRequestQuote" });
+    }
+  }, [state.status]);
 
   if (state.status === "success") {
     return (
