@@ -83,31 +83,36 @@ export async function submitQuoteRequest(
   _prevState: QuoteFormState,
   formData: FormData
 ): Promise<QuoteFormState> {
-  const verified = await verifyTurnstile(formData);
-  if (!verified) {
-    return {
-      status: "error",
-      message: "We couldn't verify you're human. Please try again.",
-    };
-  }
-
   const firstName = formData.get("firstName")?.toString().trim() ?? "";
   const lastName = formData.get("lastName")?.toString().trim() ?? "";
   const email = formData.get("email")?.toString().trim() ?? "";
   const phone = formData.get("phone")?.toString().trim() ?? "";
   const propertyType = formData.get("propertyType")?.toString().trim() ?? "";
   const details = formData.get("details")?.toString().trim() ?? "";
+  const leadDetails = { firstName, lastName, email, phone, propertyType, details };
+
+  console.log("Quote request submitted:", JSON.stringify(leadDetails));
+
+  const verified = await verifyTurnstile(formData);
+  if (!verified) {
+    console.error("Quote request failed: turnstile", JSON.stringify(leadDetails));
+    return {
+      status: "error",
+      message: "We couldn't verify you're human. Please try again.",
+    };
+  }
 
   if (!firstName || !lastName || !email || !propertyType) {
+    console.error("Quote request failed: missing fields", JSON.stringify(leadDetails));
     return { status: "error", message: "Please fill in all required fields." };
   }
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailPattern.test(email)) {
+    console.error("Quote request failed: invalid email", JSON.stringify(leadDetails));
     return { status: "error", message: "Please enter a valid email address." };
   }
 
-  const leadDetails = { firstName, lastName, email, phone, propertyType, details };
   const confirmation = renderQuoteConfirmationEmail(leadDetails);
   const notification = renderQuoteNotificationEmail(leadDetails);
 
@@ -133,7 +138,8 @@ export async function submitQuoteRequest(
     if (confirmationResult.error || notificationResult.error) {
       console.error(
         "Resend error:",
-        confirmationResult.error ?? notificationResult.error
+        confirmationResult.error ?? notificationResult.error,
+        JSON.stringify(leadDetails)
       );
       return {
         status: "error",
@@ -142,7 +148,7 @@ export async function submitQuoteRequest(
       };
     }
   } catch (err) {
-    console.error("Failed to send quote request emails:", err);
+    console.error("Failed to send quote request emails:", err, JSON.stringify(leadDetails));
     return {
       status: "error",
       message:
@@ -150,6 +156,7 @@ export async function submitQuoteRequest(
     };
   }
 
+  console.log("Quote request succeeded:", JSON.stringify(leadDetails));
   return {
     status: "success",
     message: "Thanks! We've received your request and will be in touch shortly.",
