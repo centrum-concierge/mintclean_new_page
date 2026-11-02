@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { Resend } from "resend";
 import { renderQuoteConfirmationEmail } from "@/lib/email/quote-confirmation";
 import { renderQuoteNotificationEmail } from "@/lib/email/quote-notification";
+import { serviceTypeLabel } from "@/lib/service-types";
 
 export type QuoteFormState = {
   status: "idle" | "success" | "error";
@@ -87,9 +88,10 @@ export async function submitQuoteRequest(
   const lastName = formData.get("lastName")?.toString().trim() ?? "";
   const email = formData.get("email")?.toString().trim() ?? "";
   const phone = formData.get("phone")?.toString().trim() ?? "";
+  const serviceType = serviceTypeLabel(formData.get("serviceType")?.toString().trim() ?? "") ?? "";
   const propertyType = formData.get("propertyType")?.toString().trim() ?? "";
   const details = formData.get("details")?.toString().trim() ?? "";
-  const leadDetails = { firstName, lastName, email, phone, propertyType, details };
+  const leadDetails = { firstName, lastName, email, phone, serviceType, propertyType, details };
 
   console.log("Quote request submitted:", JSON.stringify(leadDetails));
 
@@ -102,7 +104,7 @@ export async function submitQuoteRequest(
     };
   }
 
-  if (!firstName || !lastName || !email || !propertyType) {
+  if (!firstName || !lastName || !email || !serviceType || !propertyType) {
     console.error("Quote request failed: missing fields", JSON.stringify(leadDetails));
     return { status: "error", message: "Please fill in all required fields." };
   }

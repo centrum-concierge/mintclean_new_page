@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { submitQuoteRequest, type QuoteFormState } from "@/app/actions";
+import { SERVICE_TYPES } from "@/lib/service-types";
 import { CheckCircle2, Loader2 } from "lucide-react";
 
 const initialState: QuoteFormState = { status: "idle" };
@@ -92,7 +93,22 @@ export function QuoteForm() {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <Label htmlFor="propertyType">What type of property is it? *</Label>
+        <Label htmlFor="serviceType">Type of Service *</Label>
+        <Select name="serviceType" items={SERVICE_TYPES} required>
+          <SelectTrigger id="serviceType" className="w-full">
+            <SelectValue placeholder="Select type of service" />
+          </SelectTrigger>
+          <SelectContent>
+            {SERVICE_TYPES.map((type) => (
+              <SelectItem key={type.value} value={type.value}>
+                {type.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="propertyType">Type of Property *</Label>
         <Select name="propertyType" required>
           <SelectTrigger id="propertyType" className="w-full">
             <SelectValue placeholder="Select property type" />

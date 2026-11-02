@@ -5,6 +5,7 @@ export type QuoteConfirmationParams = {
   lastName: string;
   email: string;
   phone?: string;
+  serviceType: string;
   propertyType: string;
   details?: string;
 };
@@ -15,6 +16,7 @@ export function renderQuoteConfirmationEmail(params: QuoteConfirmationParams) {
   const safeName = escapeHtml(fullName || "—");
   const safeEmail = escapeHtml(params.email || "—");
   const safePhone = escapeHtml(params.phone || "—");
+  const safeServiceType = escapeHtml(params.serviceType || "—");
   const safePropertyType = escapeHtml(capitalize(params.propertyType) || "—");
   const safeDetails = escapeHtml(params.details || "—").replace(/\n/g, "<br>");
 
@@ -99,6 +101,11 @@ export function renderQuoteConfirmationEmail(params: QuoteConfirmationParams) {
     "</p>" +
     '<p style="margin:0 0 6px 0; font-family:Arial,Helvetica,sans-serif; font-size:14px; color:' +
     C.ink +
+    ';"><strong>Service type:</strong> ' +
+    safeServiceType +
+    "</p>" +
+    '<p style="margin:0 0 6px 0; font-family:Arial,Helvetica,sans-serif; font-size:14px; color:' +
+    C.ink +
     ';"><strong>Property type:</strong> ' +
     safePropertyType +
     "</p>" +
@@ -153,6 +160,9 @@ export function renderQuoteConfirmationEmail(params: QuoteConfirmationParams) {
     "\n" +
     "Phone: " +
     (params.phone || "-") +
+    "\n" +
+    "Service type: " +
+    (params.serviceType || "-") +
     "\n" +
     "Property type: " +
     (params.propertyType || "-") +

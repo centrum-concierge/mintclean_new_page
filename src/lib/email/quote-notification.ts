@@ -5,6 +5,7 @@ export type QuoteNotificationParams = {
   lastName: string;
   email: string;
   phone?: string;
+  serviceType: string;
   propertyType: string;
   details?: string;
 };
@@ -63,6 +64,13 @@ export function renderQuoteNotificationEmail(params: QuoteNotificationParams) {
     "</td></tr>" +
     '<tr><td style="padding:6px 0; font-family:Arial,Helvetica,sans-serif; font-size:13px; color:' +
     C.ash +
+    '; vertical-align:top;">Service type</td><td style="padding:6px 0; font-family:Arial,Helvetica,sans-serif; font-size:14px; color:' +
+    C.ink +
+    ';">' +
+    escapeHtml(params.serviceType || "—") +
+    "</td></tr>" +
+    '<tr><td style="padding:6px 0; font-family:Arial,Helvetica,sans-serif; font-size:13px; color:' +
+    C.ash +
     '; vertical-align:top;">Property type</td><td style="padding:6px 0; font-family:Arial,Helvetica,sans-serif; font-size:14px; color:' +
     C.ink +
     ';">' +
@@ -100,6 +108,9 @@ export function renderQuoteNotificationEmail(params: QuoteNotificationParams) {
     "\n" +
     "Phone: " +
     (params.phone || "-") +
+    "\n" +
+    "Service type: " +
+    (params.serviceType || "-") +
     "\n" +
     "Property type: " +
     (params.propertyType || "-") +
